@@ -50,17 +50,17 @@ else:
     macro genCompile(moduleDir: static[string], paths: static[openarray[string]], includes: static[openarray[string]]): untyped =
         result = newNimNode(nnkStmtList)
         for p in paths:
-            let lit = newLit(moduleDir / p)
+            let lit = newLit((moduleDir / p).replace(DirSep, AltSep))
             result.add quote do:
                 {.compile: `lit`.}
 
         for i in includes:
-            let lit = newLit(i)
+            let lit = newLit(i.replace(DirSep, AltSep))
             result.add quote do:
                 {.passC: "-I" & `lit`.}
 
     template clurp*(paths: static[openarray[string]], includeDirs: static[openarray[string]] = [""]) =
-        const thisModuleDir = instantiationInfo(fullPaths = true).filename.parentDir()
+        const thisModuleDir = instantiationInfo(fullPaths = true).filename.parentDir().replace(DirSep, AltSep)
         genCompile(thisModuleDir, paths, includeDirs)
 
 when isMainModule:
